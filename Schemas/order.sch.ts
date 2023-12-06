@@ -11,4 +11,4 @@ const orderSchema = new Schema({
   itens: [{ type: Schema.Types.ObjectId, ref: 'Item' }],
 });
 
-export const Order = model('Order', orderSchema);
+export const OrderSch = model('Order', orderSchema);

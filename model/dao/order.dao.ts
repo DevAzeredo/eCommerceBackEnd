@@ -1,33 +1,30 @@
 import { Model, Schema } from "mongoose";
-import Order from "../../interfaces/order.interface"
-import { Item } from "./item.dao";
+import iOrder from "../../interfaces/order.interface"
+import { OrderSch } from "./Schemas/order.sch";
 
-
-export class OrderDAO extends Model<Order> {
-    static schema = new Schema({
-        id: { type: String, primaryKey: true },
-        dateRegistration: { type: Date, required: true },
-        status: { type: String, required: true },
-        itens: [Item],
-    });
-
-    constructor() {
-        super();
+export class OrderDAO {
+    public async insertOrder(order: iOrder): Promise<iOrder> {
+        const newOrder = new OrderSch(order);
+        return newOrder.save();
     }
 
-    async create(order: Order): Promise<Order> {
-        const novoPedido = new this();
-        novoPedido.set(order);
-        await novoPedido.save();
-
-        return novoPedido;
+    public async deleteOrderById(itemId: string): Promise<void> {
+        await OrderSch.deleteOne({ _id: itemId }).exec();
+    }
+    public async updateOrderById(itemId: string, updatedItem: Partial<iOrder>): Promise<void> {
+        await OrderSch.updateOne({ _id: itemId }, { $set: updatedItem }).exec();
     }
 
-    async findById(id: string): Promise<Order | null> {
-        return await this.findById(id);
+    public async updateManyOrders(condition: any, updatedFields: Partial<iOrder>): Promise<void> {
+        await OrderSch.updateMany(condition, { $set: updatedFields }).exec();
     }
 
-    async findAll(): Promise<Order[]> {
-        return await this.find().lean().exec();
+    public async getOrdersByCondition(condition: any): Promise<iOrder[]> {
+        return OrderSch.find(condition).exec();
     }
+
+    public async getOrderById(itemId: string): Promise<iOrder | null> {
+        return OrderSch.findById(itemId).exec();
+    }
+
 }

@@ -1,41 +1,31 @@
-import { ItemSch } from "../Schemas/item.sch";
-import Order from "../interfaces/order.interface";
+import iOrder from "../interfaces/order.interface";
+import { ItemDAO } from "./dao/item.dao";
+import { OrderDAO } from "./dao/order.dao";
+class OrderModel{
+    private DAO: OrderDAO;
 
-export const createOrder = async (order: Order): Promise<Order | Error> => {
-    try {
-        const orderId = generateUniqueOrderId();
-        const orderStatus = 'Em processamento';
-
-        const itensWithValue = await Promise.all(
-            order.itens.map(async (item: any) => {
-                const produto = await ItemSch.findById(item.productId);
-                return {
-                    name: produto?.name || 'Produto Desconhecido',
-                    id: generateUniqueItemId(),
-                    description: produto?.description || 'Descrição Indisponível',
-                    value: produto?.value || 0,
-                };
-            })
-        );
-
-        order.id = orderId;
-        order.dateRegistration = new Date();
-        order.status = orderStatus;
-        order.itens = itensWithValue;
-        await order.save();
-
-        return order
-    } catch (error: any) {
-        return error.message
+    constructor() {
+       
+        this.DAO = new OrderDAO();
     }
-};
 
+    public async createOrder(order: iOrder): Promise<iOrder | Error> {
+        try {
+            const itensId = order.itens.map(item => item.id);
+            // eu nao deveria ter acesso ao DAO de item, deveria acessar atraves do model
+            //const itensWithValue = await this.itemDao.getItemsByCondition({ id: { $in: itensId } });
 
-export default createOrder;
+            order.dateRegistration = new Date();
+            order.status = 'Processing';
+            //order.itens = itensWithValue;
 
-function generateUniqueOrderId(): string {
-    throw new Error("Function not implemented.");
+            await this.DAO.insertOrder(order);
+
+            return order;
+        } catch (error: any) {
+            return new Error(error.message);
+        }
+    }
 }
-function generateUniqueItemId(): string {
-    throw new Error("Function not implemented.");
-}
+
+export default OrderService;

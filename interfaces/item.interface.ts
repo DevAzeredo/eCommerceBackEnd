@@ -1,8 +1,8 @@
 
-interface Item {
+interface iItem {
     name: string;
     id: string;
     description: string;
     value: number;
 }
-export default Item;
+export default iItem;

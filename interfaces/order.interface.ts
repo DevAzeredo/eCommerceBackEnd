@@ -1,6 +1,5 @@
-import Item from "./item.interface";
-interface Order {
-    save(): unknown;
+import iItem from "./item.interface";
+interface iOrder {
     id: string;
     sellerId: string;
     buyerName: string;
@@ -8,6 +7,6 @@ interface Order {
     dateRegistration: Date;
     observation: string;
     status: string;
-    itens: Array<Item>;
+    itens: iItem[];
   }
-  export default Order
+  export default iOrder

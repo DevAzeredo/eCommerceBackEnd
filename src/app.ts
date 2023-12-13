@@ -2,6 +2,7 @@ import dotenv from 'dotenv';
 import express from 'express';
 import { MongoClient,ServerApiVersion} from 'mongodb';
 import OrderController from './controller/order.controller';
+import ItemController from './controller/item.controller';
 
 dotenv.config();
 
@@ -20,8 +21,11 @@ const client = new MongoClient(process.env.MONGODB_URI, {
 const app = express();
 
 function configureExpressServer(): void {
-  app.use(express.json());
-  app.post('/api/createOrder', OrderController.getInstance().createOrderHandler());
+  app
+  .use(express.json())
+  .post('/api/v1/createOrder', OrderController.getInstance().createOrderHandler())
+  .post('/api/v1/createItem',ItemController.getInstance().createItemHandler())
+  .get('/api/v1/getItems',ItemController.getInstance().getAllItemsHandler());
   const PORT = process.env.PORT || 3000;
   app.listen(PORT, () => {
     console.log(`Servidor Express rodando na porta ${PORT}`);
@@ -30,6 +34,7 @@ function configureExpressServer(): void {
 
 async function connectDB(): Promise<void> {
   try {
+    client.db('eCommerce');
     await client.connect();
     console.log("Conectado ao MongoDB!");
   } catch (error) {

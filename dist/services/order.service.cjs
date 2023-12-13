@@ -17,12 +17,12 @@ var __copyProps = (to, from, except, desc) => {
 };
 var __toCommonJS = (mod) => __copyProps(__defProp({}, "__esModule", { value: true }), mod);
 
-// src/controller/order.controller.ts
-var order_controller_exports = {};
-__export(order_controller_exports, {
-  default: () => order_controller_default
+// src/services/order.service.ts
+var order_service_exports = {};
+__export(order_service_exports, {
+  default: () => order_service_default
 });
-module.exports = __toCommonJS(order_controller_exports);
+module.exports = __toCommonJS(order_service_exports);
 
 // src/services/dao/schemas/item.sch.ts
 var import_mongoose = require("mongoose");
@@ -3934,24 +3934,3 @@ var _OrderService = class _OrderService {
 _OrderService.PROCESSING_STATUS = "Processing";
 var OrderService = _OrderService;
 var order_service_default = OrderService;
-
-// src/controller/order.controller.ts
-var OrderController = class _OrderController {
-  static getInstance() {
-    const orderController = new _OrderController();
-    return orderController;
-  }
-  createOrderHandler() {
-    return async (req, res) => {
-      try {
-        const order = req.body;
-        await order_service_default.getInstance().createOrder(order);
-        res.status(201).json({ mensagem: "Pedido criado com sucesso!" });
-      } catch (error) {
-        console.error(error);
-        res.status(500).json({ erro: "Erro ao criar o pedido detalhes:", error });
-      }
-    };
-  }
-};
-var order_controller_default = OrderController;

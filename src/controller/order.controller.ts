@@ -1,6 +1,6 @@
-import Order from "../interfaces/order.interface";
+import { TOrder } from '../structs/order.struct';
 import { Request, Response } from 'express';
-import OrderModel from "../model/order.model";
+import OrderService from '../services/order.service';
 class OrderController {
     static getInstance(): OrderController {
         const orderController = new OrderController;
@@ -9,9 +9,9 @@ class OrderController {
     public createOrderHandler(): (req: Request, res: Response) => Promise<void> {
         return async (req: Request, res: Response): Promise<void> => {
             try {
-                const order: Order = req.body;
+                const order: TOrder = req.body;
 
-                await OrderModel.getInstance().createOrder(order);
+                await OrderService.getInstance().createOrder(order);
 
                 res.status(201).json({ mensagem: 'Pedido criado com sucesso!' });
             } catch (error) {

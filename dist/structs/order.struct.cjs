@@ -3,10 +3,6 @@ var __defProp = Object.defineProperty;
 var __getOwnPropDesc = Object.getOwnPropertyDescriptor;
 var __getOwnPropNames = Object.getOwnPropertyNames;
 var __hasOwnProp = Object.prototype.hasOwnProperty;
-var __export = (target, all) => {
-  for (var name in all)
-    __defProp(target, name, { get: all[name], enumerable: true });
-};
 var __copyProps = (to, from, except, desc) => {
   if (from && typeof from === "object" || typeof from === "function") {
     for (let key of __getOwnPropNames(from))
@@ -17,78 +13,9 @@ var __copyProps = (to, from, except, desc) => {
 };
 var __toCommonJS = (mod) => __copyProps(__defProp({}, "__esModule", { value: true }), mod);
 
-// src/controller/order.controller.ts
-var order_controller_exports = {};
-__export(order_controller_exports, {
-  default: () => order_controller_default
-});
-module.exports = __toCommonJS(order_controller_exports);
-
-// src/services/dao/schemas/item.sch.ts
-var import_mongoose = require("mongoose");
-var itemSchema = new import_mongoose.Schema({
-  id: { type: String, required: true, unique: true },
-  name: { type: String, required: true },
-  description: { type: String, required: true },
-  value: { type: Number, required: true }
-});
-var ItemSch = (0, import_mongoose.model)("Item", itemSchema);
-
-// src/services/dao/item.dao.ts
-var ItemDAO = class {
-  async insertManyItems(items) {
-    try {
-      const insertedItems = await ItemSch.insertMany(items);
-      return insertedItems;
-    } catch (error) {
-      throw new Error(`Erro ao inserir itens: ${error.message}`);
-    }
-  }
-  async getItemsByCondition(condition) {
-    return ItemSch.find(condition).exec();
-  }
-  async getAllItems() {
-    return ItemSch.find();
-  }
-};
-
-// src/services/item.service.ts
-var ItemModel = class _ItemModel {
-  static getInstance() {
-    const itemModel = new _ItemModel();
-    return itemModel;
-  }
-  constructor() {
-    this.DAO = new ItemDAO();
-  }
-  async getManyById(itensId) {
-    try {
-      const itensWithValue = await this.DAO.getItemsByCondition({ id: { $in: itensId } });
-      return itensWithValue;
-    } catch (error) {
-      return new Error(error.message);
-    }
-  }
-  async getAll() {
-    try {
-      const allItems = await this.DAO.getAllItems();
-      return allItems;
-    } catch (error) {
-      return new Error(error.message);
-    }
-  }
-  async createItem(items) {
-    try {
-      console.log("tentando ", items);
-      const itensWithValue = await this.DAO.insertManyItems(items);
-      console.log("inseriu item ", itensWithValue);
-      return itensWithValue;
-    } catch (error) {
-      return new Error(error.message);
-    }
-  }
-};
-var item_service_default = ItemModel;
+// src/structs/order.struct.ts
+var order_struct_exports = {};
+module.exports = __toCommonJS(order_struct_exports);
 
 // node_modules/zod/lib/index.mjs
 var util;
@@ -3832,126 +3759,14 @@ var ItemStruct = z.object({
 });
 var item_struct_default = ItemStruct;
 
-// src/controller/item.controller.ts
-var ItemController = class _ItemController {
-  static getInstance() {
-    const itemController = new _ItemController();
-    return itemController;
-  }
-  async getManyById(itensId) {
-    return item_service_default.getInstance().getManyById(itensId);
-  }
-  createItemHandler() {
-    return async (req, res) => {
-      try {
-        const items = item_struct_default.array().parse(req.body);
-        await item_service_default.getInstance().createItem(items);
-        res.status(201).json({ mensagem: "Pedido criado com sucesso!" });
-      } catch (error) {
-        res.status(500).json({ erro: "Erro ao criar o pedido detalhes:", error });
-      }
-    };
-  }
-  getAllItemsHandler() {
-    return async (req, res) => {
-      try {
-        const allItems = await item_service_default.getInstance().getAll();
-        res.status(201).json(allItems);
-      } catch (error) {
-        res.status(500).json({ erro: "Erro ao criar o pedido detalhes:", error });
-      }
-    };
-  }
-};
-var item_controller_default = ItemController;
-
-// src/services/dao/schemas/order.sch.ts
-var import_mongoose2 = require("mongoose");
-var orderSchema = new import_mongoose2.Schema({
-  id: { type: String, primaryKey: true },
-  sellerId: { type: String, required: true },
-  buyerName: { type: String, required: true },
-  buyerCellPhone: { type: String, required: true },
-  dateRegistration: { type: Date, required: true },
-  observation: { type: String, required: true },
-  status: { type: String, required: true },
-  items: [{ type: import_mongoose2.Schema.Types.ObjectId, ref: "ItemSch", required: true }]
+// src/structs/order.struct.ts
+var OrderStruct = z.object({
+  id: z.string(),
+  sellerId: z.string(),
+  buyerName: z.string(),
+  buyerCellPhone: z.string(),
+  dateRegistration: z.date(),
+  observation: z.string(),
+  status: z.string(),
+  items: z.array(item_struct_default)
 });
-var OrderSch = (0, import_mongoose2.model)("Order", orderSchema);
-
-// src/services/dao/order.dao.ts
-var OrderDAO = class {
-  async insertOrder(order) {
-    const newOrder = new OrderSch(order);
-    return newOrder.save();
-  }
-  async deleteOrderById(itemId) {
-    await OrderSch.deleteOne({ _id: itemId }).exec();
-  }
-  async updateOrderById(itemId, updatedItem) {
-    await OrderSch.updateOne({ _id: itemId }, { $set: updatedItem }).exec();
-  }
-  async updateManyOrders(condition, updatedFields) {
-    await OrderSch.updateMany(condition, { $set: updatedFields }).exec();
-  }
-  async getOrdersByCondition(condition) {
-    return OrderSch.find(condition).exec();
-  }
-  async getOrderById(itemId) {
-    return OrderSch.findById(itemId).exec();
-  }
-};
-
-// src/services/order.service.ts
-var _OrderService = class _OrderService {
-  static getInstance() {
-    const orderService = new _OrderService();
-    return orderService;
-  }
-  constructor() {
-    this.DAO = new OrderDAO();
-  }
-  async createOrder(order) {
-    try {
-      order.dateRegistration = /* @__PURE__ */ new Date();
-      order.status = _OrderService.PROCESSING_STATUS;
-      const itensId = order.items.map((item) => item.id);
-      const itensWithValue = await item_controller_default.getInstance().getManyById(itensId);
-      if (!(itensWithValue instanceof Error)) {
-        order.items = itensWithValue;
-        await this.DAO.insertOrder(order);
-        return order;
-      } else {
-        console.error(`Erro ao obter itens do pedido: ${itensWithValue.message}`);
-        return itensWithValue;
-      }
-    } catch (error) {
-      console.error(`Erro ao processar pedido: ${error.message}`);
-      return new Error(error.message);
-    }
-  }
-};
-_OrderService.PROCESSING_STATUS = "Processing";
-var OrderService = _OrderService;
-var order_service_default = OrderService;
-
-// src/controller/order.controller.ts
-var OrderController = class _OrderController {
-  static getInstance() {
-    const orderController = new _OrderController();
-    return orderController;
-  }
-  createOrderHandler() {
-    return async (req, res) => {
-      try {
-        const order = req.body;
-        await order_service_default.getInstance().createOrder(order);
-        res.status(201).json({ mensagem: "Pedido criado com sucesso!" });
-      } catch (error) {
-        console.error(error);
-        res.status(500).json({ erro: "Erro ao criar o pedido detalhes:", error });
-      }
-    };
-  }
-};
-var order_controller_default = OrderController;
